@@ -19,7 +19,8 @@ word_2_idx = {v: k for k, v in enumerate(english_vocabulary)}
 idx_2_word = {k: v for k, v in enumerate(english_vocabulary)}
 vocab_size = len(english_vocabulary)
 PADDING_IDX = word_2_idx[PADDING_TOKEN]
-
+END_IDX = word_2_idx[END_TOKEN]
+START_IDX = word_2_idx[START_TOKEN]
 
 class TNDataset(Dataset):
     def __init__(self, df: pd.DataFrame):

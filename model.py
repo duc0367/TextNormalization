@@ -1,6 +1,9 @@
 import torch.nn as nn
 import torch
 
+from dataset import END_IDX, START_IDX
+from config import CFG
+
 
 class Encoder(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim):
@@ -52,13 +55,32 @@ class Seq2SeqModel(nn.Module):
     def forward(self, x, y):
         # x: (N, L)
         hidden, cell = self.encoder(x)
-        sequence_length = x.shape[1]
-        predictions = torch.zeros(x.shape[0], sequence_length, self.vocab_size).to(self.device)
+        sequence_length = y.shape[1]
+        predictions = torch.zeros(y.shape[0], sequence_length, self.vocab_size).to(self.device)
 
         target = y[:, 0]
         for i in range(1, sequence_length):
             output, (hidden, cell) = self.decoder(target, hidden, cell)
             predictions[:, i] = output
             target = y[:, i]
+
+        return predictions
+
+    def generate(self, x):
+        # x: (L)
+        x = x.unsqueeze(0)  # (1, L)
+        hidden, cell = self.encoder(x)
+        predictions = []
+
+        target = torch.tensor([START_IDX], dtype=torch.float32).to(self.device)
+
+        for i in range(1, CFG.max_length_decode):
+
+            output, (hidden, cell) = self.decoder(target, hidden, cell)
+            predicted_id = torch.argmax(output[0])
+            predictions.append(predicted_id)
+            if predicted_id == END_IDX:
+                break
+            target = torch.tensor([predicted_id], dtype=torch.float32).to(self.device)
 
         return predictions

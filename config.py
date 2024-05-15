@@ -8,3 +8,7 @@ class CFG:
     max_length_decode = 3800
     embedding_hidden_size = 256
     hidden_size = 512
+    use_autocast = False
+    max_norm = 1000
+    print_freq = 32
+    output_model = 'text_normalization'
